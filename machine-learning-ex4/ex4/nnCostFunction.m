@@ -65,24 +65,18 @@ Theta2_grad = zeros(size(Theta2));
 
 
 % -------------------------------------------------------------
-
+X = [ones(m,1) X];
 
 % part 1:
 
 i =1;
+
 while i<=m
-
 % for the first layer
-fsum1 =sigmoid(1*Theta1(1,1) + X(i,1)*Theta1(1,2) + X(i,2)*Theta1(1,3));
-fsum2 =sigmoid(1*Theta1(2,1) + X(i,1)*Theta1(2,2) + X(i,2)*Theta1(2,3));
-fsum3 =sigmoid(1*Theta1(3,1) + X(i,1)*Theta1(3,2) + X(i,2)*Theta1(3,3));
-fsum4 = sigmoid(1*Theta1(4,1) + X(i,1)*Theta1(4,2) + X(i,2)*Theta1(4,3));
+hidden_layer = sigmoid(Theta1* transpose(X(i,:)));
+hidden_layer = [1; hidden_layer];
 
-% for the second layer
-ssum1 = sigmoid(1*Theta2(1,1) + fsum1*Theta2(1,2) + fsum2*Theta2(1,3) +fsum3*Theta2(1,4) + fsum4 *Theta2(1,5));
-ssum2 = sigmoid(1*Theta2(2,1) + fsum1*Theta2(2,2) + fsum2*Theta2(2,3) +fsum3*Theta2(2,4) + fsum4 *Theta2(2,5));
-ssum3 = sigmoid(1*Theta2(3,1) + fsum1*Theta2(3,2) + fsum2*Theta2(3,3) +fsum3*Theta2(3,4) + fsum4 *Theta2(3,5));
-ssum4 = sigmoid(1*Theta2(4,1) + fsum1*Theta2(4,2) + fsum2*Theta2(4,3) +fsum3*Theta2(4,4) + fsum4 *Theta2(4,5));
+output_layer = sigmoid(Theta2 * hidden_layer); 
 
 if(y(i) ==1 )
 new_y = [1;0;0;0];
@@ -100,78 +94,53 @@ if(y(i) ==4 )
 new_y = [0;0;0;1];
 end;
 
-J = J + new_y(1)*log(ssum1) +(1-new_y(1))*log(1-ssum1) + new_y(2)*log(ssum2) +(1-new_y(2))*log(1-ssum2) ;
-J = J + new_y(3)*log(ssum3) +(1-new_y(3))*log(1-ssum3)  +new_y(4)*log(ssum4) +(1-new_y(4))*log(1-ssum4) 
+J = J -  transpose(new_y)* log(output_layer) - transpose(1 - new_y) * (log (1 -output_layer)) ; 
 i = i+1;
 end;
 
-J = -J/m;
+J = J/m;
 
 % ------------- part 2 --------------------------------------------------------------------------------
 
-%delta2 is the error for the final layer
-% delta1 is the error for the hidden layer 
+% adding ones to the hidden layer
 
 i=1;
 while i<=m
-fsum1 =sigmoid(1*Theta1(1,1) + X(i,1)*Theta1(1,2) + X(i,2)*Theta1(1,3));
-fsum2 =sigmoid(1*Theta1(2,1) + X(i,1)*Theta1(2,2) + X(i,2)*Theta1(2,3));
-fsum3 =sigmoid(1*Theta1(3,1) + X(i,1)*Theta1(3,2) + X(i,2)*Theta1(3,3));
-fsum4 = sigmoid(1*Theta1(4,1) + X(i,1)*Theta1(4,2) + X(i,2)*Theta1(4,3));
+hidden_layer = sigmoid(Theta1* transpose(X(i,:)));
+hidden_layer = [1; hidden_layer];
 
-% for the second layer
-ssum1 = sigmoid(1*Theta2(1,1) + fsum1*Theta2(1,2) + fsum2*Theta2(1,3) +fsum3*Theta2(1,4) + fsum4 *Theta2(1,5));
-ssum2 = sigmoid(1*Theta2(2,1) + fsum1*Theta2(2,2) + fsum2*Theta2(2,3) +fsum3*Theta2(2,4) + fsum4 *Theta2(2,5));
-ssum3 = sigmoid(1*Theta2(3,1) + fsum1*Theta2(3,2) + fsum2*Theta2(3,3) +fsum3*Theta2(3,4) + fsum4 *Theta2(3,5));
-ssum4 = sigmoid(1*Theta2(4,1) + fsum1*Theta2(4,2) + fsum2*Theta2(4,3) +fsum3*Theta2(4,4) + fsum4 *Theta2(4,5));
+output_layer = sigmoid(Theta2 * hidden_layer); 
 
+yVec=[0;0;0;0];
 
-if(y(i) ==1 )
-delta2_1 =ssum1 - 1;
-delta2_2 =ssum2 - 0;
-delta2_3 =ssum3 - 0;
-delta2_4 =ssum4 - 0;
+if(y(i) == 1)
+yVec = [1;0;0;0];
 end;
 
-if(y(i) ==2 )
-delta2_1 =ssum1 - 0;
-delta2_2 =ssum2 - 1;
-delta2_3 =ssum3 - 0;
-delta2_4 =ssum4 - 0;
+if(y(i) == 2)
+yVec = [0;1;0;0];
 end;
 
-if(y(i) ==3 )
-delta2_1 =ssum1 - 0;
-delta2_2 =ssum2 - 0;
-delta2_3 =ssum3 - 1;
-delta2_4 =ssum4 - 0;
+if(y(i) == 3)
+yVec = [0;0;1;0];
 end;
 
-if(y(i) ==4 )
-delta2_1 =ssum1 - 0;
-delta2_2 =ssum2 - 0;
-delta2_3 =ssum3 - 0;
-delta2_4 =ssum4 - 1;
+if(y(i) == 4)
+yVec = [0;0;0;1];
 end;
 
+delta3 = output_layer - yVec;
+delta2 = (transpose(Theta2)* delta3) .*(hidden_layer .* (1 -hidden_layer));
 
-new_x = [ones(m,1) X];
-delta2_new = [delta2_1;delta2_2;delta2_3;delta2_4];
-
-first_layer = [1;fsum1;fsum2;fsum3;fsum4];
-
-delta1_new = transpose(Theta2) *delta2_new .* (first_layer .*(1-first_layer)) ;
-
-Theta2_grad = Theta2_grad + delta2_new *transpose(first_layer);
-Theta1_grad = Theta1_grad + delta1_new(2:end) *new_x(i,:);
-
-i= i+1;
+Theta2_grad = Theta2_grad + delta3* transpose(hidden_layer);
+Theta1_grad = Theta1_grad + delta2(2:end)*X(i,:);
+i = i+1;
 end;
 
 Theta1_grad = Theta1_grad ./ m;
 Theta2_grad = Theta2_grad ./ m;
 
-%----------- Part 3 -----------------------------------------------------------------
+%----------- PartTheta1_grad = (lambda/m)*(Theta1(:,2:end));
 i =1;
 j =2;
 temp1 =0;
@@ -199,39 +168,23 @@ end;
 
 J = J +(lambda/(2*m))*(temp1 + temp2);
 
-i =1;
-j =1;
-while i<=4
-	while j<=3
-	if j == 1
-	Theta1_grad(i,j) = Theta1_grad(i,j) ;
-	end; 
-	if j~= 1
-	Theta1_grad(i,j) = Theta1_grad(i,j) + (lambda/m) *Theta1(i,j);
-	end;
-	j = j+1;
-	end;
-i = i+1;
-j=1;
-end;
 
 
+Theta1_new = Theta1;
+Theta1_new(1,1) =0;
+Theta1_new(2,1) =0;
+Theta1_new(3,1) =0;
+Theta1_new(4,1) = 0;
 
-i =1;
-j =1;
-while i<=4
-	while j<=5
-	if j == 1
-	Theta2_grad(i,j) = Theta2_grad(i,j) ;
-	end; 
-	if j~= 1
-	Theta2_grad(i,j) = Theta2_grad(i,j) + (lambda/m) *Theta2(i,j);
-	end;
-	j = j+1;
-	end;
-i = i+1;
-j=1;
-end;
+Theta2_new = Theta2;
+Theta2_new(1,1) =0;
+Theta2_new(2,1) = 0;
+Theta2_new(3,1) =0;
+Theta2_new(4,1) = 0;
+
+
+Theta1_grad =Theta1_grad+ (lambda/m)*(Theta1_new);
+Theta2_grad = Theta2_grad+ (lambda/m)*(Theta2_new);
 
 % =========================================================================
 
