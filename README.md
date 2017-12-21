@@ -1,1 +1,1 @@
-solutions of different programming questions week wise
+Machine Learning course Assignments by Andrew ng
